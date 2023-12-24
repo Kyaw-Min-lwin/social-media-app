@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h2>Welcome to the Home Page!</h2>
+
+{% for post in posts %}
+<!-- Display post details as needed -->
+<div>
+  <h3>{{ post.title }}</h3>
+  <small>{{post.created_at}}</small>
+  <p>{{ post.content }}</p>
+  <!-- Add other post details here -->
+</div>
+{% endfor %}
+{% endblock %}
