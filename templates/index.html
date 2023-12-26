@@ -6,10 +6,46 @@
 {% for post in posts %}
 <!-- Display post details as needed -->
 <div>
-  <h3>{{ post.title }}</h3>
-  <small>{{post.created_at}}</small>
-  <p>{{ post.content }}</p>
-  <!-- Add other post details here -->
+	<h3>{{ post.title }}</h3>
+	<small>{{post.created_at}}</small>
+	<p>{{ post.content }}</p>
+	<!-- Update your HTML form with post ID and like count elements -->
+	<form id="likeForm{{ post.id }}" data-post-id="{{ post.id }}" method="post">
+		{% csrf_token %}
+		<input type="submit" value="Like post">
+		<span id="likeCount{{ post.id }}">{{ post.post_like_count }}</span> Likes
+	</form>
+
 </div>
 {% endfor %}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+	$(document).ready(function () {
+		$('form[id^="likeForm"]').submit(function (event) {
+			event.preventDefault();  // Prevent the default form submission
+
+			var postID = $(this).data('post-id');
+
+			// Send an AJAX request to the server
+			$.ajax({
+				type: 'POST',
+				url: '/like/',  // Update this URL with your Django view URL
+				data: {
+					'post_id': postID,
+					'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+				},
+				success: function (data) {
+					// Update the like count on success
+					$('#likeCount' + postID).text(data.likes);
+				},
+				error: function (error) {
+					console.log('Error:', error);
+				}
+			});
+		});
+	});
+
+
+</script>
+
 {% endblock %}
