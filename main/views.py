@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import SignUpForm
 from django.contrib import messages
-from .models import Post, Like
+from .models import Post, Like, CustomUser, Follow
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 
@@ -32,7 +32,6 @@ def create(request):
         user = request.user
         new_post = Post.objects.create(title=title, content=content, user=user)
         new_post.save()
-        posts = Post.objects.all()
         return redirect("index")
     return render(request, "create.html")
 
@@ -56,8 +55,31 @@ def like_post(request):
 
         # Return the updated like count as JSON
         updated_likes_count = Like.objects.filter(post=post).count()
-        print(updated_likes_count)
-        print("n")
         return JsonResponse({"likes": updated_likes_count})
     else:
         return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+def profile(request, user):
+    user1 = get_object_or_404(CustomUser, username=user)
+    posts = Post.objects.filter(user=user1)
+    return render(request, "profile.html", {"posts": posts})
+
+def follow_user(request, user_id):
+    user_to_follow = get_object_or_404(CustomUser, pk=user_id)
+
+    # Check if the user is not already following the target user
+    if not request.user.following.filter(pk=user_id).exists():
+        follow = Follow(follower=request.user, following=user_to_follow)
+        follow.save()
+
+    return redirect('user_profile', user_id=user_id)  # Redirect to the user's profile
+
+def unfollow_user(request, user_id):
+    user_to_unfollow = get_object_or_404(CustomUser, pk=user_id)
+
+    # Check if the user is following the target user
+    if request.user.following.filter(pk=user_id).exists():
+        request.user.following_set.filter(following=user_to_unfollow).delete()
+
+    return redirect('user_profile', user_id=user_id)

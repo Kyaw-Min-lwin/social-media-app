@@ -7,7 +7,7 @@
 <!-- Display post details as needed -->
 <div>
 	<h3>{{ post.title }}</h3>
-	<small>{{post.created_at}}</small>
+	<small><a href="profile/{{post.user}}">{{post.user}} </a>{{post.created_at}}</small>
 	<p>{{ post.content }}</p>
 	<!-- Update your HTML form with post ID and like count elements -->
 	<form id="likeForm{{ post.id }}" data-post-id="{{ post.id }}" method="post">
